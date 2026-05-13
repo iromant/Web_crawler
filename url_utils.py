@@ -1,6 +1,8 @@
 from urllib.parse import urlparse, urljoin
 def normalize(url: str) -> str:
     url = url.strip().lower()
+    if '#' in url:
+        url = url.split('#')[0]
     if not url.startswith(('http://', 'https://')):
         url = 'https://' + url
     return url
