@@ -9,6 +9,7 @@ class ResponseData:
     url: str
     error: Optional[str] = None
     last_modified: Optional[str] = None
+
 class Downloader:
     def __init__(self, timeout: int = 5):
         self.timeout = timeout
@@ -26,7 +27,8 @@ class Downloader:
                 url,
                 timeout=self.timeout,
                 headers=headers,
-                stream=True
+                stream=True,
+                allow_redirects=True
             )
 
             if response.status_code == 304:
@@ -40,7 +42,9 @@ class Downloader:
 
             return ResponseData(response.text, response.status_code, response.url, last_modified=server_date)
 
+        except requests.exceptions.TooManyRedirects:
+            return ResponseData("", 300, url, error="Too many redirects (>5)")
         except requests.exceptions.Timeout:
-            return ResponseData("", 0, url, error="Timeout")
+            return ResponseData("", 0, url, error="TIMEOUT")
         except Exception as e:
             return ResponseData("", 0, url, error=str(e))
